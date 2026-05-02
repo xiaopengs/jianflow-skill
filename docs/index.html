@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>剪流 SKILL — 短视频自动化工作流生成器</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --card: #111111;
+      --border: #222222;
+      --text: #ffffff;
+      --text-secondary: #8A8B90;
+      --accent: #00D2FF;
+      --success: #00E676;
+      --warning: #FFB300;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0,210,255,0.08) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+    }
+
+    .hero-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 8px);
+      gap: 4px;
+    }
+
+    .logo-grid span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .logo-grid span:nth-child(1) { background: #fff; }
+    .logo-grid span:nth-child(2) { background: var(--accent); }
+    .logo-grid span:nth-child(3) { background: var(--accent); }
+    .logo-grid span:nth-child(4) { background: #fff; }
+
+    .hero-logo-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.03em;
+    }
+
+    .hero h1 .accent {
+      color: var(--accent);
+      position: relative;
+    }
+
+    .hero h1 .accent::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--accent);
+      opacity: 0.3;
+    }
+
+    .hero-desc {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #00b8e0;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #1a1a1a;
+      border-color: #444;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+      margin-top: 4rem;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 0.25rem;
+    }
+
+    /* ===== SECTIONS ===== */
+    section {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 1rem;
+    }
+
+    /* ===== FEATURES ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+      transform-origin: left;
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .feature-card:hover {
+      border-color: #333;
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: rgba(0,210,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ===== WORKFLOW ===== */
+    .workflow-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .workflow-step {
+      display: flex;
+      gap: 1.5rem;
+      position: relative;
+      padding: 1.5rem 0;
+    }
+
+    .workflow-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 24px;
+      top: 60px;
+      width: 2px;
+      height: calc(100% - 30px);
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .step-content {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .step-content h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .step-content .badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(0,210,255,0.1);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+    }
+
+    .step-content p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .step-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .step-tag {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ===== TRANSITION DEMO ===== */
+    .transition-demo {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .transition-demo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(0,210,255,0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .demo-phone {
+      width: 280px;
+      height: 500px;
+      background: #000;
+      border: 2px solid #333;
+      border-radius: 24px;
+      margin: 2rem auto;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,210,255,0.1);
+    }
+
+    .demo-phone::before,
+    .demo-phone::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff4444;
+      animation: breathe 2s ease-in-out infinite;
+      z-index: 10;
+    }
+
+    .demo-phone::before { top: 8px; left: 8px; }
+    .demo-phone::after { top: 8px; right: 8px; }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .demo-slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 20px;
+      background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+    }
+
+    .demo-slide .title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+      line-height: 1.2;
+    }
+
+    .demo-slide .subtitle {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+    }
+
+    .demo-controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .demo-btn {
+      padding: 10px 24px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .demo-btn:hover {
+      background: #1a1a1a;
+      border-color: var(--accent);
+    }
+
+    .demo-btn.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+
+    .anim-label {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(0,210,255,0.1);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      margin: 0.5rem;
+    }
+
+    /* ===== TECH STACK ===== */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+
+    .tech-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .tech-item:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .tech-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .tech-version {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ===== QUICKSTART ===== */
+    .code-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .code-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .code-dot.red { background: #ff5f56; }
+    .code-dot.yellow { background: #ffbd2e; }
+    .code-dot.green { background: #27c93f; }
+
+    .code-title {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-left: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    pre {
+      padding: 1.5rem;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    pre .comment { color: #6a737d; }
+    pre .command { color: var(--accent); }
+    pre .string { color: #a5d6ff; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    footer .links {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--accent);
+    }
+
+    footer .copyright {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .hero-stats { gap: 2rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .workflow-step { flex-direction: column; gap: 1rem; }
+      .workflow-step:not(:last-child)::after { display: none; }
+      .demo-phone { width: 240px; height: 427px; }
+      section { padding: 4rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-logo">
+        <div class="logo-grid">
+          <span></span><span></span>
+          <span></span><span></span>
+        </div>
+        <span class="hero-logo-text">剪流 SKILL</span>
+      </div>
+      <h1>
+        从 GitHub 到<br/>
+        <span class="accent">爆款短视频</span>
+      </h1>
+      <p class="hero-desc">
+        可视化工作流生成器。采集仓库数据 → LLM 智能分析 → 爆款条件审查 → 9:16 视频合成。
+        让技术产品的 GitHub 页面，流动成具有强烈视觉冲击力的竖屏短视频。
+      </p>
+      <div class="hero-cta">
+        <a href="https://3sa6i5sa2r3ra.ok.kimi.link" class="btn btn-primary" target="_blank">
+          🔴 在线演示
+        </a>
+        <a href="https://github.com/xiaopengs/jianflow-skill" class="btn btn-secondary" target="_blank">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub 仓库
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-value">4</div>
+          <div class="stat-label">工作流节点</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">9:16</div>
+          <div class="stat-label">竖屏比例</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">10.5s</div>
+          <div class="stat-label">视频时长</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">92</div>
+          <div class="stat-label">爆款评分</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="section-header">
+      <div class="section-tag">FEATURES</div>
+      <h2 class="section-title">核心特性</h2>
+      <p class="section-desc">将黑盒的 AI Agent 工作流彻底白盒化，每一个节点都可视、可控、可调试</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3>4 节点串联工作流</h3>
+        <p>GitHub 采集 → LLM 分析 → 爆款审查 → 视频合成，纵向串联可视化，数据沿管道流动，状态实时追踪。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎞️</div>
+        <h3>9:16 竖屏实时预览</h3>
+        <p>中央视口按手机比例渲染，支持播放/暂停/逐帧控制，四角红色录制指示灯增强真实感。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>三同步转场引擎</h3>
+        <p>GSAP 驱动的震动(15px) + 滑移(40%) + 斜切(8°) 同时触发，1.3 秒极速切换，营造强烈物理冲击感。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>LLM 智能分析</h3>
+        <p>集成 GPT-4o / Claude-3.5 / Gemini，自动提炼技术产品卖点，输出 3-5 个 ≤15 字的核心特性。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>爆款条件审查</h3>
+        <p>5 维度评分体系：标题吸引力、卖点密度、时长控制、明确 CTA、总时长限制。阈值 80/100。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎛️</div>
+        <h3>深度参数控制</h3>
+        <p>每页独立时长、震动幅度 5-30px、文字飞入速度、字幕样式、背景音乐音量全可调。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKFLOW -->
+  <section id="workflow">
+    <div class="section-header">
+      <div class="section-tag">PIPELINE</div>
+      <h2 class="section-title">工作流程</h2>
+      <p class="section-desc">从仓库 URL 到爆款短视频，四个节点串联而成的完整自动化管道</p>
+    </div>
+    <div class="workflow-timeline">
+      <div class="workflow-step">
+        <div class="step-number">01</div>
+        <div class="step-content">
+          <h3>GitHub 数据采集 <span class="badge">gh-crawl</span></h3>
+          <p>连接 GitHub API，抓取仓库元数据、README 全文、Topics 标签等信息，为后续分析提供原料。</p>
+          <div class="step-details">
+            <span class="step-tag">Stars: 577</span>
+            <span class="step-tag">Forks: 55</span>
+            <span class="step-tag">README: 4.2KB</span>
+            <span class="step-tag">Topics: 6</span>
+          </div>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">02</div>
+        <div class="step-content">
+          <h3>LLM 内容分析 <span class="badge">llm-analyze</span></h3>
+          <p>GPT-4o 读取 README 全文，提炼核心卖点、技术亮点、目标用户群体，输出结构化分析报告。</p>
+          <div class="step-details">
+            <span class="step-tag">AI驱动浏览器自动化</span>
+            <span class="step-tag">多标签页并行</span>
+            <span class="step-tag">开源自托管</span>
+            <span class="step-tag">Playwright兼容</span>
+          </div>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">03</div>
+        <div class="step-content">
+          <h3>爆款条件审查 <span class="badge">viral-check</span></h3>
+          <p>5 维度评分体系逐项检查，通过分数线 80/100。当前审查结果 92/100，符合爆款条件，准予生成。</p>
+          <div class="step-details">
+            <span class="step-tag">标题吸引力: 18/20</span>
+            <span class="step-tag">卖点密度: 25/25</span>
+            <span class="step-tag">时长控制: 20/20</span>
+            <span class="step-tag">CTA: 14/15</span>
+            <span class="step-tag">总时长: 20/20</span>
+          </div>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">04</div>
+        <div class="step-content">
+          <h3>视频合成引擎 <span class="badge">video-gen</span></h3>
+          <p>将审查通过的素材合成为 1080×1920 竖屏视频。4 页内容，10.5 秒，30fps，带震动转场和字幕。</p>
+          <div class="step-details">
+            <span class="step-tag">1080×1920</span>
+            <span class="step-tag">MP4</span>
+            <span class="step-tag">30fps</span>
+            <span class="step-tag">10.5s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSITION -->
+  <section id="transition">
+    <div class="section-header">
+      <div class="section-tag">ENGINE</div>
+      <h2 class="section-title">ExtremeCut 转场引擎</h2>
+      <p class="section-desc">三个严格同步的 GSAP 动画同时触发，营造强烈的物理冲击感和专业剪辑质感</p>
+    </div>
+    <div class="transition-demo">
+      <div class="demo-phone" id="demoPhone">
+        <div class="demo-slide" id="demoSlide">
+          <div>
+            <div class="title">GITHUB<br/>爆款神器</div>
+          </div>
+          <div class="subtitle">
+            577 Stars · 55 Forks<br/>
+            基于 Playwright 的开源浏览器自动化框架
+          </div>
+        </div>
+      </div>
+      <div>
+        <span class="anim-label">屏幕强震 ±15px</span>
+        <span class="anim-label">图片滑移 40%</span>
+        <span class="anim-label">文字斜切 8°</span>
+      </div>
+      <div class="demo-controls">
+        <button class="demo-btn active" onclick="showSlide(0)">Page 1</button>
+        <button class="demo-btn" onclick="showSlide(1)">Page 2</button>
+        <button class="demo-btn" onclick="showSlide(2)">Page 3</button>
+        <button class="demo-btn" onclick="showSlide(3)">Page 4</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section id="tech">
+    <div class="section-header">
+      <div class="section-tag">STACK</div>
+      <h2 class="section-title">技术栈</h2>
+      <p class="section-desc">现代化的前端技术组合，灵感源自专业剪辑软件的工业级 UI 设计</p>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div class="tech-name">React</div>
+        <div class="tech-version">18+</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-name">TypeScript</div>
+        <div class="tech-version">5.x</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-name">Vite</div>
+        <div class="tech-version">5.x</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-name">Tailwind CSS</div>
+        <div class="tech-version">3.4</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-name">shadcn/ui</div>
+        <div class="tech-version">latest</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-name">GSAP</div>
+        <div class="tech-version">3.x</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-name">Recharts</div>
+        <div class="tech-version">latest</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-name">Lucide</div>
+        <div class="tech-version">React</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK START -->
+  <section id="quickstart">
+    <div class="section-header">
+      <div class="section-tag">QUICKSTART</div>
+      <h2 class="section-title">快速开始</h2>
+      <p class="section-desc">三步启动本地开发环境，体验完整的短视频自动化工作流</p>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-dot red"></span>
+        <span class="code-dot yellow"></span>
+        <span class="code-dot green"></span>
+        <span class="code-title">Terminal</span>
+      </div>
+      <pre><span class="comment"># 1. 克隆仓库</span>
+<span class="command">git</span> clone https://github.com/xiaopengs/jianflow-skill.git
+<span class="command">cd</span> jianflow-skill
+
+<span class="comment"># 2. 安装依赖</span>
+<span class="command">npm</span> install
+
+<span class="comment"># 3. 启动开发服务器</span>
+<span class="command">npm</span> run dev
+
+<span class="comment"># 4. 构建生产版本</span>
+<span class="command">npm</span> run build</pre>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="links">
+      <a href="https://3sa6i5sa2r3ra.ok.kimi.link" target="_blank">🔴 在线演示</a>
+      <a href="https://github.com/xiaopengs/jianflow-skill" target="_blank">📦 GitHub 仓库</a>
+      <a href="#features">✨ 核心特性</a>
+      <a href="#workflow">🔄 工作流程</a>
+      <a href="#quickstart">🚀 快速开始</a>
+    </div>
+    <p class="copyright">
+      MIT License © 2025 xiaopengs · 剪流 JianFlow SKILL
+    </p>
+  </footer>
+
+  <script>
+    // Demo phone slide switching
+    const slides = [
+      {
+        title: 'GITHUB<br/>爆款神器',
+        subtitle: '577 Stars · 55 Forks<br/>基于 Playwright 的开源浏览器自动化框架'
+      },
+      {
+        title: '核心卖点<br/>四大特性',
+        subtitle: 'AI驱动 · 多标签并行<br/>开源自托管 · 全站兼容'
+      },
+      {
+        title: '爆款审查<br/>92/100',
+        subtitle: '标题吸引力 ✓ 卖点密度 ✓<br/>时长控制 ✓ 节奏感 ✓'
+      },
+      {
+        title: '视频已生成<br/>10.5s',
+        subtitle: 'MP4 · 1080×1920 · 30fps<br/>点击重新生成或导出'
+      }
+    ];
+
+    function showSlide(index) {
+      const phone = document.getElementById('demoPhone');
+      const slide = document.getElementById('demoSlide');
+      const btns = document.querySelectorAll('.demo-btn');
+
+      // Shake animation
+      phone.style.animation = 'none';
+      phone.offsetHeight; // trigger reflow
+      phone.style.animation = 'shake 0.15s ease-in-out';
+
+      // Update content with fade
+      slide.style.opacity = '0';
+      slide.style.transform = 'translateX(20px)';
+      slide.style.transition = 'all 0.3s ease';
+
+      setTimeout(() => {
+        slide.querySelector('.title').innerHTML = slides[index].title;
+        slide.querySelector('.subtitle').innerHTML = slides[index].subtitle;
+        slide.style.opacity = '1';
+        slide.style.transform = 'translateX(0)';
+      }, 300);
+
+      // Update buttons
+      btns.forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+    }
+
+    // Add shake keyframes dynamically
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translate(0, 0); }
+        20% { transform: translate(-8px, 4px); }
+        40% { transform: translate(6px, -3px); }
+        60% { transform: translate(-5px, 5px); }
+        80% { transform: translate(4px, -4px); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card, .workflow-step, .tech-item').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>
